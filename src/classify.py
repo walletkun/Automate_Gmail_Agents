@@ -1,38 +1,48 @@
 """
-Stage 2: RawEmail -> Classification
-
-One API call. No loop, no tools. This is Level 0 of the curriculum applied to
-a real problem.
+Raw Email -> Classificatio
+One call: no loop, no tools.
 """
 
 from .contracts import Classification, RawEmail
 from .llm import call_structured
 
-SYSTEM = """You are an email triage assistant.
+SYSTEM = """You classify incoming emails for a personal inbox triage pipeline.
 
-Classify the email into exactly one category:
-  - interview : an invitation, scheduling request, or update about a job interview
-  - personal  : real correspondence from a real person who knows the recipient
-  - useful    : promotional or automated, but genuinely worth reading
-  - skip      : promotional noise, receipts, notifications, mass marketing
+Categories:
 
-Set confidence honestly. Low confidence on a borderline email is more useful
-than false certainty. Only populate entities you can actually see in the text --
-never guess a company or role."""
+interview — a company or its recruiter is engaging you about a specific role.
+Recruiter outreach about an opening, scheduling or rescheduling, take-home
+assignments, interview confirmations, offers, and rejections. Automated
+scheduling mail still counts if it concerns a real interview process.
 
-# TODO(session 1): the prompt above is a starting point, not an answer.
-# Things worth trying, one at a time, measuring against your fixtures:
-#   - Add 2-3 few-shot examples. Usually the single biggest accuracy jump.
-#   - Sharpen the useful/skip boundary. It's the one that will annoy you most,
-#     because "genuinely worth reading" means something specific to YOU that
-#     the model can't infer. This is exactly the gap prefs.json fills later.
-#   - Ask for reasoning BEFORE category in the schema field order and see if
-#     accuracy changes. (It often does. Think about why.)
+personal — a real human is writing to you specifically, and it isn't about a
+role at their company. School and university mail, LinkedIn reach-outs, coffee
+chat requests, networking, mail from friends and family, and messages from
+people you have an existing relationship with.
+
+skip — mass mail. Retail promotions, newsletters, receipts, shipping notices,
+platform notifications, and anything auto-generated for a large list. The test
+is whether it was written for you, not merely addressed to you.
+
+Guidance:
+- Read the whole thread when quoted replies are present. Classify by what the
+  most recent message is doing, not by what the thread started as.
+- A sender's domain is weak evidence. A no-reply address can still carry a real
+  interview; a personal address can still send a newsletter.
+- Recruiter mass-blasts to many candidates are still interview, not skip.
+- When two categories genuinely fit, choose the one with the higher cost of
+  being missed, and lower your confidence.
+
+confidence is your honest probability that this label is correct. Use the full
+range. Reserve values above 0.9 for cases with no plausible alternative, and go
+below 0.6 when you would want a human to check.
+
+reasoning is one sentence naming the specific signal that decided it."""
 
 
 def classify(raw: RawEmail) -> Classification:
     return call_structured(
         prompt=raw.for_prompt(),
         schema=Classification,
-        system=SYSTEM,
+        system=SYSTEM
     )
