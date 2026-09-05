@@ -53,9 +53,7 @@ def main(eml_path: str) -> None:
     print(f"  category   : {result.category.value}")
     print(f"  confidence : {result.confidence}")
     print(f"  reasoning  : {result.reasoning}")
-    print(f"  entities   : {result.entities.model_dump(exclude_none=True)}")
 
-    print(f"\n-> {'PROCESS' if result.should_process else 'SKIP'}")
     print(f"-> logs in {run_dir}/")
 
     # Stages 3-5 land here in later sessions. Resist adding them until stage

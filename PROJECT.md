@@ -56,7 +56,7 @@ agent bugs harder to diagnose.
 
 ## Build sessions
 
-- [ ] **1 — ingest + classify.** `.eml` → `RawEmail` → `Classification`, printed.
+- [x] **1 — ingest + classify.** `.eml` → `RawEmail` → `Classification`, printed.
 Skeleton exists. TODOs: `extract_body()` (HTML-only emails return empty),
 classification prompt (useful/skip boundary needs few-shot examples).
 - [ ] **2 — agent loop + Tavily.** The while-loop from Level 2. Print the full
@@ -94,11 +94,22 @@ causes classification errors or token pressure.
 - Enabling billing on a Google project deletes that project's free tier.
 - Agent loops need a max-turns cap and a cost ceiling. Non-negotiable.
 - Human gate on sending email until output is trusted — write to file first.
+- MODEL="gemini-2.5-flash" silently served gemini-3.6-flash. Google redirects
+deprecated model strings — results aren't reproducible against a pinned version.
 
 ---
 
-## Session log
+## Session log- [x] 1 — ingest + classify. Both TikTok fixtures classify correctly
+(interview, 0.98). Remaining: thread_id derivation, missing-subject
+case, borderline fixture for testing.
 
 **2026-07-26** — Architecture + curriculum settled. Skeleton scaffolded
 (contracts, llm, ingest, classify, main). Nothing run yet.
 Next: download fixtures, get session 1 printing a `Classification`.
+**2026-09-05** — Session 1 done. Rewrote src/ from scratch (contracts, llm,
+ingest, classify). Gemini structured output working end to end. Token
+asymmetry noted: 1,016 vs 5,144 prompt tokens on the two TikTok fixtures
+(quoted reply chain). Gemini 3 spends ~120-210 thinking tokens per
+classification. Claude Code initialized with a working agreement (Probably won't
+until the project is pretty much complete and needs revamping). Next: borderline
+fixture, then session 2 agent loop.

@@ -41,5 +41,4 @@ def call_structured(prompt: str, schema: type[T], system: str = "") -> T:
         },
     )
     
-    print(response)
     return response.parsed
